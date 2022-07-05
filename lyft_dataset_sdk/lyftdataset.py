@@ -741,7 +741,7 @@ class LyftDatasetExplorer:
             pointsensor_token: Lidar/radar sample_data token.
             camera_token: Camera sample_data token.
 
-        Returns: (pointcloud <np.float: 2, n)>, coloring <np.float: n>, image <Image>).
+        Returns: (pointcloud <np.float: 3, n)>, pointcloud <np.float: 2, n)>, coloring <np.float: n>, image <Image>).
 
         """
 
@@ -795,7 +795,7 @@ class LyftDatasetExplorer:
         points = points[:, mask]
         coloring = coloring[mask]
 
-        return points, coloring, image
+        return pc.points, points, coloring, image
 
     def render_pointcloud_in_image(
         self,
