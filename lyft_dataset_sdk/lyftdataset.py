@@ -795,7 +795,7 @@ class LyftDatasetExplorer:
         points = points[:, mask]
         coloring = coloring[mask]
 
-        return pc.points, points, coloring, image
+        return pc.points[:, mask], points, coloring, image
 
     def render_pointcloud_in_image(
         self,
