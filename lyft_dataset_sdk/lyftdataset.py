@@ -795,7 +795,10 @@ class LyftDatasetExplorer:
         points = points[:, mask]
         coloring = coloring[mask]
 
-        return pc.points[:, mask], points, coloring, image
+        # Additionally filter depth <= 10m
+        mask2 = np.logical_and(mask, depths < 10)
+
+        return pc.points[:, mask2], points, coloring, image
 
     def render_pointcloud_in_image(
         self,
