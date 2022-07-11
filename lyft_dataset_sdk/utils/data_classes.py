@@ -761,7 +761,7 @@ class Box:
         )
 
     def copy(self) -> "Box":
-        """        Create a copy of self.
+        """Create a copy of self.
 
         Returns: A copy.
 

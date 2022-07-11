@@ -81,11 +81,12 @@ def box_in_image(box, intrinsic: np.ndarray, image_size: Tuple[int, int], vis_le
     visible = np.logical_and(visible, corners_3d[2, :] > 1)
 
     in_front = corners_3d[2, :] > 0.1  # True if a corner is at least 0.1 meter in front of the camera.
+    close = corners_3d[2, :] < 10  # True if a corner is within 10m of the camera
 
     if vis_level == BoxVisibility.ALL:
         return all(visible) and all(in_front)
     elif vis_level == BoxVisibility.ANY:
-        return any(visible) and all(in_front)
+        return any(visible) and any(close)
     elif vis_level == BoxVisibility.NONE:
         return True
     else:
