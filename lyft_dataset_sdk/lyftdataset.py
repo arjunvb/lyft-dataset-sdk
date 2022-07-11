@@ -1130,6 +1130,7 @@ class LyftDatasetExplorer:
         margin: float = 10,
         view: np.ndarray = np.eye(4),
         box_vis_level: BoxVisibility = BoxVisibility.ANY,
+        cam_type: str = None,
         out_path: str = None,
     ) -> None:
         """Render selected annotation.
@@ -1152,18 +1153,26 @@ class LyftDatasetExplorer:
         fig, axes = plt.subplots(1, 2, figsize=(18, 9))
 
         # Figure out which camera the object is fully visible in (this may return nothing)
-        boxes, cam = [], []
-        cams = [key for key in sample_record["data"].keys() if "CAM" in key]
-        for cam in cams:
+        if cam_type is None:
+            boxes, cam = [], []
+            cams = [key for key in sample_record["data"].keys() if "CAM" in key]
+            for cam in cams:
+                _, boxes, _ = self.lyftd.get_sample_data(
+                    sample_record["data"][cam], box_vis_level=box_vis_level, selected_anntokens=[ann_token]
+                )
+                if len(boxes) > 0:
+                    break  # We found an image that matches. Let's abort.
+        else:
             _, boxes, _ = self.lyftd.get_sample_data(
-                sample_record["data"][cam], box_vis_level=box_vis_level, selected_anntokens=[ann_token]
+                sample_record["data"][cam_type], box_vis_level=box_vis_level, selected_anntokens=[ann_token]
             )
-            if len(boxes) > 0:
-                break  # We found an image that matches. Let's abort.
         assert len(boxes) > 0, "Could not find image where annotation is visible. Try using e.g. BoxVisibility.ANY."
         assert len(boxes) < 2, "Found multiple annotations. Something is wrong!"
 
-        cam = sample_record["data"][cam]
+        if cam_type is None:
+            cam = sample_record["data"][cam]
+        else:
+            cam = sample_record["data"][cam_type]
 
         # Plot LIDAR view
         lidar = sample_record["data"]["LIDAR_TOP"]
