@@ -253,8 +253,6 @@ class LyftDataset:
 
         """
 
-        print(f"In get_sample_data")
-
         # Retrieve sensor & pose records
         sd_record = self.get("sample_data", sample_data_token)
         cs_record = self.get("calibrated_sensor", sd_record["calibrated_sensor_token"])
@@ -303,7 +301,6 @@ class LyftDataset:
 
             box_list.append(box)
 
-        print(f"box list = {box_list}")
         return data_path, box_list, cam_intrinsic
 
     def get_box(self, sample_annotation_token: str) -> Box:
