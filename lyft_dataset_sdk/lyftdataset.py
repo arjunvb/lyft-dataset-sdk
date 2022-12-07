@@ -511,9 +511,17 @@ class LyftDataset:
         margin: float = 10,
         view: np.ndarray = np.eye(4),
         box_vis_level: BoxVisibility = BoxVisibility.ANY,
+        cam_type: str = None,
         out_path: str = None,
     ) -> None:
-        self.explorer.render_annotation(sample_annotation_token, margin, view, box_vis_level, out_path)
+        self.explorer.render_annotation(
+            sample_annotation_token,
+            margin,
+            view,
+            box_vis_level,
+            cam_type,
+            out_path,
+        )
 
     def render_instance(self, instance_token: str, out_path: str = None) -> None:
         self.explorer.render_instance(instance_token, out_path=out_path)
