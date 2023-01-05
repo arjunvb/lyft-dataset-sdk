@@ -27,6 +27,8 @@ from lyft_dataset_sdk.utils.map_mask import MapMask
 
 PYTHON_VERSION = sys.version_info[0]
 
+MAX_DEPTH_M = 7  # meters
+
 if not PYTHON_VERSION == 3:
     raise ValueError("LyftDataset sdk only supports Python version 3.")
 
@@ -295,7 +297,11 @@ class LyftDataset:
                 box.rotate_around_origin(Quaternion(cs_record["rotation"]).inverse)
 
             if sensor_record["modality"] == "camera" and not box_in_image(
-                box, cam_intrinsic, image_size, vis_level=box_vis_level
+                box,
+                cam_intrinsic,
+                image_size,
+                vis_level=box_vis_level,
+                range_m=MAX_DEPTH_M,
             ):
                 continue
 
@@ -741,7 +747,7 @@ class LyftDatasetExplorer:
             ann_record = self.lyftd.get("sample_annotation", ann_token)
             print(f"sample_annotation_token: {ann_record['token']}, category: {ann_record['category_name']}")
 
-    def map_pointcloud_to_image(self, pointsensor_token: str, camera_token: str) -> Tuple:
+    def map_pointcloud_to_image(self, pointsensor_token: str, camera_token: str, range_m: int) -> Tuple:
         """Given a point sensor (lidar/radar) token and camera sample_data token, load point-cloud and map it to
         the image plane.
 
@@ -753,7 +759,6 @@ class LyftDatasetExplorer:
 
         """
 
-        print(pointsensor_token)
         cam = self.lyftd.get("sample_data", camera_token)
         pointsensor = self.lyftd.get("sample_data", pointsensor_token)
         pcl_path = self.lyftd.data_path / pointsensor["filename"]
@@ -804,10 +809,9 @@ class LyftDatasetExplorer:
         points = points[:, mask]
         coloring = coloring[mask]
 
-        # Additionally filter depth <= 10m
-        mask2 = np.logical_and(mask, depths < 10)
+        # Additionally filter depth <= 7m
+        mask2 = np.logical_and(mask, depths < 7)
 
-        print(points.shape)
         return pc.points[:, mask2], points, coloring, image
 
     def render_pointcloud_in_image(
@@ -836,7 +840,11 @@ class LyftDatasetExplorer:
         pointsensor_token = sample_record["data"][pointsensor_channel]
         camera_token = sample_record["data"][camera_channel]
 
-        points, coloring, im = self.map_pointcloud_to_image(pointsensor_token, camera_token)
+        _, points, coloring, im = self.map_pointcloud_to_image(
+            pointsensor_token,
+            camera_token,
+            MAX_DEPTH_M,
+        )
         plt.figure(figsize=(9, 16))
         plt.imshow(im)
         plt.scatter(points[0, :], points[1, :], c=coloring, s=dot_size)

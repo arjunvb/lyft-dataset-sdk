@@ -59,7 +59,13 @@ def view_points(points: np.ndarray, view: np.ndarray, normalize: bool) -> np.nda
     return points
 
 
-def box_in_image(box, intrinsic: np.ndarray, image_size: Tuple[int, int], vis_level: int = BoxVisibility.ANY) -> bool:
+def box_in_image(
+    box,
+    intrinsic: np.ndarray,
+    image_size: Tuple[int, int],
+    vis_level: int = BoxVisibility.ANY,
+    range_m: int = 7,
+) -> bool:
     """Check if a box is visible inside an image without accounting for occlusions.
 
     Args:
@@ -81,7 +87,7 @@ def box_in_image(box, intrinsic: np.ndarray, image_size: Tuple[int, int], vis_le
     visible = np.logical_and(visible, corners_3d[2, :] > 1)
 
     in_front = corners_3d[2, :] > 0.1  # True if a corner is at least 0.1 meter in front of the camera.
-    close = corners_3d[2, :] < 10  # True if a corner is within 10m of the camera
+    close = corners_3d[2, :] < range_m  # True if a corner is within 10m of the camera
 
     if vis_level == BoxVisibility.ALL:
         return all(visible) and all(in_front)
